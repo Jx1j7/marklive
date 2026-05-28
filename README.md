@@ -246,10 +246,14 @@ git push origin main
 # 1. 克隆仓库
 git clone https://github.com/Jx1j7/marklive.git
 
-# 2. 一键启动（自动装依赖 + 启动前后端 + 打开浏览器）
-#这一项针对macOS，Windows直接启动start.bat
+# 2. 进入项目目录
 cd marklive
+
+# 3. 根据系统一键启动
+# [macOS/Linux 用户] 执行下方命令：
 ./start.sh
+
+# [Windows 用户] 请忽略上方命令，直接在文件夹里双击运行 start.bat
 ```
 
 | 系统 | 启动方式 |
