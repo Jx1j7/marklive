@@ -144,7 +144,7 @@ git push origin main
 
 ```bash
 # 1. 克隆仓库
-git clone https://github.com/yourname/marklive.git
+git clone https://github.com/Jx1j7/marklive.git
 cd marklive
 
 # 2. 启动后端（默认端口 8080）
