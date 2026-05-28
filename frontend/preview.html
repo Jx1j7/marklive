@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Marklive - Markdown Editor</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'PingFang SC', 'Microsoft YaHei', sans-serif; background: #f0f2f5; }
+  </style>
+  <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css" />
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <script src="https://unpkg.com/element-plus/dist/index.full.min.js"></script>
+  <script src="https://unpkg.com/@element-plus/icons-vue"></script>
+  <script src="https://unpkg.com/marked/marked.min.js"></script>
+</head>
+<body>
+<div id="app">
+  <div class="app-container">
+    <el-header class="app-header">
+      <div class="header-left">
+        <el-icon :size="22"><Document /></el-icon>
+        <span class="header-title">Marklive</span>
+      </div>
+      <div class="header-right">
+        <el-input v-model="folderPath" placeholder="请输入文件夹路径" clearable class="path-input" @keyup.enter="loadArticles">
+          <template #prepend>文件夹</template>
+        </el-input>
+        <el-button type="primary" @click="loadArticles" :loading="loading">
+          <el-icon><Search /></el-icon> 扫描
+        </el-button>
+        <el-button type="success" @click="deploy" :loading="deploying">
+          <el-icon><Upload /></el-icon> 部署
+        </el-button>
+      </div>
+    </el-header>
+    <div class="main-body">
+      <div class="left-panel">
+        <div class="panel-header">
+          <span>文章列表</span>
+          <el-tag v-if="articles.length" size="small" type="info">{{ articles.length }}</el-tag>
+        </div>
+        <div class="article-list">
+          <div v-if="articles.length === 0 && !loading" class="empty-hint">
+            <el-empty description="点击扫描加载文章" :image-size="80" />
+          </div>
+          <div v-for="a in articles" :key="a.filePath" class="article-item" :class="{ active: cur?.filePath === a.filePath }" @click="select(a)">
+            <div class="article-title">{{ a.title || a.fileName }}</div>
+            <div class="article-meta">
+              <span v-if="a.date" class="article-date"><el-icon :size="12"><Calendar /></el-icon> {{ a.date }}</span>
+              <span v-if="a.tags" class="article-tags">
+                <el-tag v-for="t in (a.tags||'').split(/[,，\s]+/).filter(Boolean).slice(0,3)" :key="t" size="small" type="info">{{ t }}</el-tag>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="right-panels">
+        <div class="editor-panel">
+          <div class="panel-header">
+            <span><el-icon><Edit /></el-icon> 编辑</span>
+            <div>
+              <el-button v-if="cur" text size="small" type="primary" :loading="saving" @click="save">保存到后端</el-button>
+            </div>
+          </div>
+          <el-input v-model="text" type="textarea" class="editor-textarea" placeholder="输入 Markdown 或点击左侧文章..." resize="none" />
+        </div>
+        <div class="preview-panel">
+          <div class="panel-header">
+            <span><el-icon><View /></el-icon> 预览</span>
+            <span v-if="lineCount" class="line-count">{{ lineCount }} 行</span>
+          </div>
+          <div class="preview-content" v-html="html"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const { createApp, ref, computed } = Vue
+const { ElMessage } = ElementPlus
+
+const MOCK_ARTICLES = [
+  {
+    filePath: '/test/spring-boot-guide.md', fileName: 'spring-boot-guide.md',
+    title: 'Spring Boot 入门指南', tags: 'Java, Spring Boot, 后端', date: '2024-03-15',
+    content: '# Spring Boot 入门指南\n\nSpring Boot 是一个基于 Spring 框架的快速开发工具。\n\n## 核心特性\n\n1. **自动配置**：自动配置 Spring 应用\n2. **起步依赖**：简化依赖管理\n3. **内嵌服务器**：内置 Tomcat、Jetty\n\n```java\n@SpringBootApplication\npublic class Application {\n    public static void main(String[] args) {\n        SpringApplication.run(Application.class, args);\n    }\n}\n```\n\n> Spring Boot 让 Java 开发更简单。'
+  },
+  {
+    filePath: '/test/microservices.md', fileName: 'microservices.md',
+    title: '微服务架构设计', tags: '微服务, 架构, 分布式', date: '2024-05-20',
+    content: '# 微服务架构设计\n\n微服务架构是一种将应用拆分为多个小型、独立服务的设计模式。\n\n## 优势\n\n- 独立部署和扩展\n- 技术栈灵活\n- 故障隔离\n\n## 挑战\n\n| 挑战 | 解决方案 |\n|------|----------|\n| 服务通信 | gRPC / 消息队列 |\n| 数据一致性 | Saga / 事件溯源 |\n| 服务发现 | Consul / Eureka |'
+  },
+  {
+    filePath: '/test/docker-notes.md', fileName: 'docker-notes.md',
+    title: 'Docker 实践笔记', tags: 'Docker, 容器, DevOps', date: '2024-06-10',
+    content: '# Docker 实践笔记\n\n## 常用命令\n\n```bash\ndocker ps -a\ndocker build -t myapp .\ndocker run -d -p 8080:8080 myapp\ndocker-compose up -d\n```\n\n## Dockerfile 最佳实践\n\n- 使用多阶段构建减小镜像体积\n- 合理利用缓存层\n- 以非 root 用户运行'
+  },
+  {
+    filePath: '/test/no-frontmatter.md', fileName: 'no-frontmatter.md',
+    title: null, tags: null, date: null,
+    content: '# 无 Front-Matter 的文章\n\n这篇文章没有 YAML Front-Matter 头部。\n\n所有内容都是正文，title、tags、date 字段为空。'
+  }
+]
+
+const app = createApp({
+  setup() {
+    const folderPath = ref('/Users/ljx/CodeBuddy/marklive/test-md')
+    const articles = ref([])
+    const cur = ref(null)
+    const text = ref('')
+    const loading = ref(false)
+    const saving = ref(false)
+    const deploying = ref(false)
+
+    marked.setOptions({ breaks: true, gfm: true })
+
+    const html = computed(() => {
+      if (!text.value) return '<p style="color:#999;">暂无内容，请选择文章或输入 Markdown 文本</p>'
+      try { return marked.parse(text.value) }
+      catch (e) { return `<p style="color:red;">解析错误: ${e.message}</p>` }
+    })
+    const lineCount = computed(() => text.value ? text.value.split('\n').length : 0)
+
+    function loadArticles() {
+      loading.value = true
+      articles.value = []
+      cur.value = null
+      text.value = ''
+      setTimeout(() => {
+        articles.value = [...MOCK_ARTICLES]
+        loading.value = false
+        ElMessage.success(`扫描完成，找到 ${articles.value.length} 篇文章`)
+      }, 600)
+    }
+
+    function select(a) {
+      cur.value = a
+      const lines = ['---']
+      if (a.title) lines.push(`title: ${a.title}`)
+      if (a.date) lines.push(`date: ${a.date}`)
+      if (a.tags) lines.push(`tags: ${a.tags}`)
+      lines.push('---', '')
+      if (a.content) lines.push(a.content)
+      text.value = lines.join('\n')
+    }
+
+    async function save() {
+      if (!cur.value) { ElMessage.warning('请先选择文章'); return }
+      saving.value = true
+      setTimeout(() => {
+        const m = text.value.match(/^---\s*\n([\s\S]*?)\n---\s*\n([\s\S]*)$/)
+        if (m) {
+          let title='',tags='',date=''
+          for (const line of m[1].split('\n')) {
+            const tm=line.match(/^title:\s*(.+)$/), dm=line.match(/^date:\s*(.+)$/), gm=line.match(/^tags:\s*(.+)$/)
+            if(tm) title=tm[1].trim().replace(/^["']|["']$/g,'')
+            if(dm) date=dm[1].trim().replace(/^["']|["']$/g,'')
+            if(gm) tags=gm[1].trim().replace(/^\[|\]$/g,'').replace(/["']/g,'').trim()
+          }
+          cur.value.title=title; cur.value.tags=tags; cur.value.date=date; cur.value.content=m[2].trim()
+          const idx = articles.value.findIndex(a=>a.filePath===cur.value.filePath)
+          if(idx!==-1) { articles.value[idx].title=title; articles.value[idx].tags=tags; articles.value[idx].date=date; articles.value[idx].content=m[2].trim() }
+        }
+        saving.value = false
+        ElMessage.success('文章保存成功')
+      }, 400)
+    }
+
+    async function deploy() {
+      deploying.value = true
+      setTimeout(() => {
+        deploying.value = false
+        ElMessage.success('Git 部署成功: git add . → git commit → git push')
+      }, 1000)
+    }
+
+    for (const [k,v] of Object.entries(ElementPlusIconsVue)) { app.component(k,v) }
+    return { folderPath, articles, cur, text, loading, saving, deploying, html, lineCount, loadArticles, select, save, deploy }
+  }
+})
+app.use(ElementPlus)
+app.mount('#app')
+</script>
+
+<style>
+.app-container { display:flex; flex-direction:column; height:100vh; background:#f0f2f5; }
+.app-header { display:flex; align-items:center; justify-content:space-between; height:56px; padding:0 20px; background:#fff; border-bottom:1px solid #e4e7ed; box-shadow:0 1px 4px rgba(0,0,0,0.04); flex-shrink:0; }
+.header-left { display:flex; align-items:center; gap:8px; color:#409eff; font-weight:700; font-size:18px; }
+.header-right { display:flex; align-items:center; gap:10px; }
+.path-input { width:360px; }
+.main-body { display:flex; flex:1; overflow:hidden; gap:1px; background:#e4e7ed; }
+.left-panel { width:260px; min-width:200px; background:#fff; display:flex; flex-direction:column; flex-shrink:0; }
+.panel-header { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; font-size:14px; font-weight:600; color:#303133; border-bottom:1px solid #ebeef5; gap:8px; flex-shrink:0; }
+.article-list { flex:1; overflow-y:auto; padding:4px 0; }
+.empty-hint { display:flex; align-items:center; justify-content:center; height:200px; }
+.article-item { padding:12px 16px; cursor:pointer; border-left:3px solid transparent; transition:all .15s; }
+.article-item:hover { background:#f5f7fa; }
+.article-item.active { background:#ecf5ff; border-left-color:#409eff; }
+.article-title { font-size:14px; font-weight:500; color:#303133; margin-bottom:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.article-meta { display:flex; align-items:center; gap:6px; font-size:12px; color:#909399; flex-wrap:wrap; }
+.article-date { display:inline-flex; align-items:center; gap:3px; }
+.article-tags { display:flex; gap:4px; flex-wrap:wrap; }
+.right-panels { flex:1; display:flex; gap:1px; background:#e4e7ed; overflow:hidden; }
+.editor-panel, .preview-panel { flex:1; display:flex; flex-direction:column; background:#fff; overflow:hidden; }
+.editor-textarea { flex:1; }
+.editor-textarea .el-textarea__inner { height:100%!important; border:none; border-radius:0; resize:none; font-family:'JetBrains Mono','Fira Code',Menlo,Monaco,monospace; font-size:14px; line-height:1.7; padding:16px 20px; color:#2c3e50; background:#fafbfc; }
+.editor-textarea .el-textarea__inner:focus { background:#fff; box-shadow:none; }
+.preview-content { flex:1; overflow-y:auto; padding:16px 24px; line-height:1.8; color:#2c3e50; font-size:15px; }
+.preview-content h1 { font-size:1.8em; font-weight:700; margin:.67em 0 .5em; padding-bottom:.3em; border-bottom:1px solid #e4e7ed; }
+.preview-content h2 { font-size:1.5em; font-weight:600; margin:1em 0 .5em; padding-bottom:.25em; border-bottom:1px solid #ebeef5; }
+.preview-content h3 { font-size:1.25em; font-weight:600; margin:.8em 0 .4em; }
+.preview-content p { margin:.6em 0; }
+.preview-content ul, .preview-content ol { padding-left:2em; margin:.5em 0; }
+.preview-content li { margin:.25em 0; }
+.preview-content blockquote { margin:.8em 0; padding:8px 16px; border-left:4px solid #409eff; background:#f5f7fa; color:#606266; }
+.preview-content code { font-family:'JetBrains Mono','Fira Code',Menlo,Monaco,monospace; background:#f0f2f5; padding:2px 6px; border-radius:3px; font-size:.9em; color:#e83e8c; }
+.preview-content pre { margin:1em 0; padding:16px 20px; background:#282c34; border-radius:8px; overflow-x:auto; }
+.preview-content pre code { background:none; padding:0; color:#abb2bf; font-size:.9em; line-height:1.6; }
+.preview-content table { width:100%; border-collapse:collapse; margin:1em 0; }
+.preview-content th, .preview-content td { border:1px solid #e4e7ed; padding:8px 12px; text-align:left; }
+.preview-content th { background:#f5f7fa; font-weight:600; }
+.preview-content tr:nth-child(even) { background:#fafbfc; }
+.preview-content a { color:#409eff; text-decoration:none; }
+.preview-content a:hover { text-decoration:underline; }
+.preview-content img { max-width:100%; border-radius:4px; }
+.preview-content hr { border:none; border-top:1px solid #e4e7ed; margin:1.5em 0; }
+.line-count { font-size:12px; color:#909399; font-weight:400; }
+</style>
+</body>
+</html>

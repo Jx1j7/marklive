@@ -1,0 +1,73 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - img [ref=e7]
+      - generic [ref=e9]: Marklive
+    - generic [ref=e10]:
+      - generic [ref=e11]:
+        - generic [ref=e12]: 文件夹
+        - textbox "请输入文件夹路径，如 /path/to/md/folder" [ref=e14]: /Users/ljx/CodeBuddy/marklive/test-md
+      - button "扫描" [ref=e16] [cursor=pointer]:
+        - generic [ref=e17]:
+          - img [ref=e19]
+          - text: 扫描
+  - generic [ref=e21]:
+    - generic [ref=e22]:
+      - generic [ref=e23]:
+        - generic [ref=e24]: 文章列表
+        - generic [ref=e66]: "3"
+      - generic [ref=e25]:
+        - generic [ref=e68] [cursor=pointer]: no-frontmatter.md
+        - generic [ref=e69] [cursor=pointer]:
+          - generic [ref=e70]: 微服务架构设计
+          - generic [ref=e71]:
+            - generic [ref=e72]:
+              - img [ref=e74]
+              - text: Mon May 20 08:00:00 CST 2024
+            - generic [ref=e76]:
+              - generic [ref=e78]: 微服务
+              - generic [ref=e80]: 架构
+              - generic [ref=e82]: 分布式
+        - generic [ref=e83] [cursor=pointer]:
+          - generic [ref=e84]: Spring Boot 入门指南
+          - generic [ref=e85]:
+            - generic [ref=e86]:
+              - img [ref=e88]
+              - text: Fri Mar 15 08:00:00 CST 2024
+            - generic [ref=e90]:
+              - generic [ref=e92]: Java
+              - generic [ref=e94]: Spring
+              - generic [ref=e96]: Boot
+    - generic [ref=e47]:
+      - generic [ref=e48]:
+        - generic [ref=e49]:
+          - generic [ref=e50]:
+            - img [ref=e52]
+            - text: 编辑
+          - button "保存到后端" [ref=e102] [cursor=pointer]:
+            - generic [ref=e103]: 保存到后端
+        - textbox "请输入 Markdown 内容，或从左侧列表选择文章..." [ref=e56]: "--- title: 微服务架构设计 date: Mon May 20 08:00:00 CST 2024 tags: 微服务, 架构, 分布式 --- # 微服务架构设计 微服务架构是一种将应用拆分为多个小型、独立服务的设计模式。 ## 优势 - 独立部署和扩展 - 技术栈灵活 - 故障隔离 ## 挑战 - 分布式系统的复杂性 - 服务间通信 - 数据一致性"
+      - generic [ref=e57]:
+        - generic [ref=e58]:
+          - generic [ref=e59]:
+            - img [ref=e61]
+            - text: 预览
+          - generic [ref=e104]: 21 行
+        - generic [ref=e63]:
+          - separator [ref=e105]
+          - 'heading "title: 微服务架构设计 date: Mon May 20 08:00:00 CST 2024 tags: 微服务, 架构, 分布式" [level=2] [ref=e106]':
+            - text: "title: 微服务架构设计"
+            - text: "date: Mon May 20 08:00:00 CST 2024"
+            - text: "tags: 微服务, 架构, 分布式"
+          - heading "微服务架构设计" [level=1] [ref=e107]
+          - paragraph [ref=e108]: 微服务架构是一种将应用拆分为多个小型、独立服务的设计模式。
+          - heading "优势" [level=2] [ref=e109]
+          - list [ref=e110]:
+            - listitem [ref=e111]: 独立部署和扩展
+            - listitem [ref=e112]: 技术栈灵活
+            - listitem [ref=e113]: 故障隔离
+          - heading "挑战" [level=2] [ref=e114]
+          - list [ref=e115]:
+            - listitem [ref=e116]: 分布式系统的复杂性
+            - listitem [ref=e117]: 服务间通信
+            - listitem [ref=e118]: 数据一致性

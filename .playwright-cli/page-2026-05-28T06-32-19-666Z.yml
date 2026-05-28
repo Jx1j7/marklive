@@ -1,0 +1,30 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - img [ref=e7]
+      - generic [ref=e9]: Marklive
+    - generic [ref=e10]:
+      - generic [ref=e11]:
+        - generic [ref=e12]: 文件夹
+        - textbox "请输入文件夹路径，如 /path/to/md/folder" [ref=e14]: /Users/ljx/CodeBuddy/marklive/test-md
+      - button "扫描" [ref=e16] [cursor=pointer]:
+        - generic [ref=e17]:
+          - img [ref=e19]
+          - text: 扫描
+  - generic [ref=e21]:
+    - generic [ref=e22]:
+      - generic [ref=e24]: 文章列表
+      - generic [ref=e27]:
+        - img [ref=e29]
+        - paragraph [ref=e46]: 请扫描文件夹
+    - generic [ref=e47]:
+      - generic [ref=e48]:
+        - generic [ref=e50]:
+          - img [ref=e52]
+          - text: 编辑
+        - textbox "请输入 Markdown 内容，或从左侧列表选择文章..." [ref=e56]
+      - generic [ref=e57]:
+        - generic [ref=e59]:
+          - img [ref=e61]
+          - text: 预览
+        - paragraph [ref=e64]: 暂无内容，请选择文章或输入 Markdown 文本
