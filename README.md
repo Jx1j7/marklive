@@ -119,9 +119,109 @@ my-blog/
 
 ## 🚀 快速开始
 
-### 第一步：前提准备
+### 🛠️ 环境依赖
 
-> **在启动 MarkLive 之前，请确保以下条件已满足：**
+> **在启动 MarkLive 之前，请确保你的电脑已安装以下运行时环境：**
+
+| 依赖 | 最低版本 | 用途 |
+|:---:|:---:|---|
+| **JDK** | 17+ | 编译和运行 Spring Boot 后端 |
+| **Maven** | 3.x+ | 构建 Java 项目，拉取依赖 |
+| **Node.js** | 18.x LTS+ | 运行 Vue 3 前端开发服务器 |
+
+---
+
+#### 安装指南
+
+<details open>
+<summary><b>🍎 macOS 用户</b></summary>
+
+##### 方案 A：Homebrew 一键安装（强烈推荐）
+
+```bash
+# 一条命令装齐 Java + Maven + Node.js
+brew install openjdk@17 maven node
+```
+
+安装后需要将 OpenJDK 加入系统 PATH：
+
+```bash
+# 将此行追加到 ~/.zshrc（或 ~/.bash_profile）
+echo 'export PATH="/opt/homebrew/opt/openjdk@17/bin:$PATH"' >> ~/.zshrc
+source ~/.zshrc
+```
+
+##### 方案 B：官网手动下载
+
+| 工具 | 下载地址 |
+|:---:|---|
+| JDK 17 | [https://adoptium.net/](https://adoptium.net/) 或 [https://jdk.java.net/17/](https://jdk.java.net/17/) |
+| Maven | [https://maven.apache.org/download.cgi](https://maven.apache.org/download.cgi) |
+| Node.js | [https://nodejs.org/](https://nodejs.org/) （选择 LTS 版本） |
+
+> ⚠️ 手动安装 Maven 后，需要将 `maven/bin` 目录添加到系统 `PATH` 环境变量中。
+
+</details>
+
+<details>
+<summary><b>🪟 Windows 用户</b></summary>
+
+##### 方案 A：包管理器一键安装
+
+```powershell
+# 使用 Scoop（推荐）
+scoop install openjdk17 maven nodejs-lts
+
+# 或使用 Chocolatey
+choco install openjdk17 maven nodejs-lts
+```
+
+##### 方案 B：官网手动下载
+
+| 工具 | 下载地址 |
+|:---:|---|
+| JDK 17 | [https://adoptium.net/](https://adoptium.net/) （下载 `.msi` 安装包） |
+| Maven | [https://maven.apache.org/download.cgi](https://maven.apache.org/download.cgi) （下载 Binary zip） |
+| Node.js | [https://nodejs.org/](https://nodejs.org/) （选择 LTS 版本 `.msi` 安装包） |
+
+> ⚠️ 手动安装 Maven 后，需要设置环境变量：
+> 1. 解压到 `C:\Program Files\apache-maven`
+> 2. 将 `C:\Program Files\apache-maven\bin` 添加到系统 `PATH`
+> 3. 新建系统变量 `JAVA_HOME`，指向 JDK 安装目录
+
+</details>
+
+---
+
+#### ✅ 验证安装
+
+打开终端（macOS）或命令提示符（Windows），依次执行以下命令：
+
+```bash
+# 检查 Java
+java -version
+# ✅ 应输出类似：openjdk version "17.0.x" ...
+
+# 检查 Maven
+mvn -v
+# ✅ 应输出类似：Apache Maven 3.9.x ...
+
+# 检查 Node.js
+node -v
+# ✅ 应输出类似：v18.x.x 或 v20.x.x ...
+
+# 检查 npm（随 Node.js 自带）
+npm -v
+# ✅ 应输出类似：10.x.x ...
+```
+
+> 💡 四条命令全部输出正常版本号，即可进入下一步。
+
+---
+
+### 第一步：Git 与博客仓库准备
+
+> **MarkLive 专用于管理已有的 Git 博客仓库，请确保以下条件已满足：**
 
 ```bash
 # 1. Git 已安装并配置好全局用户信息
