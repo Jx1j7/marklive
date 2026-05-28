@@ -240,25 +240,29 @@ git push origin main
 # ✅ 推送成功即可，不成功请先排查 Git/SSH 配置
 ```
 
-### 第二步：启动项目
+### 第二步：一键启动
 
 ```bash
 # 1. 克隆仓库
 git clone https://github.com/Jx1j7/marklive.git
 cd marklive
 
-# 2. 启动后端（默认端口 8080）
-mvn spring-boot:run
-
-# 3. 另开终端，启动前端（默认端口 3000）
-cd frontend
-npm install
-npm run dev
+# 2. 一键启动（自动装依赖 + 启动前后端 + 打开浏览器）
+./start.sh
 ```
 
-打开浏览器访问 **`http://localhost:3000`**，即可看到 MarkLive 界面。
+| 系统 | 启动方式 |
+|:---:|---|
+| 🍎 macOS / Linux | 终端执行 `./start.sh` |
+| 🪟 Windows | 双击 `start.bat` |
 
-> 💡 前端已通过 Vite proxy 自动将 `/api` 请求转发到后端 8080 端口，无需额外跨域配置。
+> ✨ 脚本会自动完成以下操作：
+> 1. 后台启动 Java 后端（Spring Boot，端口 8080）
+> 2. 检测 `node_modules`，缺失时自动 `npm install`
+> 3. 启动 Vue 前端（Vite，端口 3000）
+> 4. 等待服务就绪后自动打开浏览器访问 `http://localhost:3000`
+>
+> 💡 按 `Ctrl + C` 可优雅停止所有服务。Windows 用户请分别关闭弹出的两个命令行窗口。
 
 ### 第三步：日常创作流程
 
